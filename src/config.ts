@@ -1,1 +1,1 @@
-export let baseUrl  = "http://localhost:5174"
+export let baseUrl  = "https://teamcom.fly.dev"

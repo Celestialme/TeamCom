@@ -3,7 +3,7 @@
 	import Conversation from '@src/components/Conversation.svelte';
 	import Drawer from '@src/components/Drawer.svelte';
 	import { baseUrl } from '@src/config';
-	import { usersOnline, screen, userID, socket, currentContact } from '@src/stores/store';
+	import { usersOnline, screen, userID, socket, currentContact, userList } from '@src/stores/store';
 	import { appWindow } from '@tauri-apps/api/window';
 	import axios from 'axios';
 	import { onMount } from 'svelte';
@@ -21,25 +21,30 @@
 	$: if (!hide) {
 		$socket.off('newMessage');
 		$socket.on('newMessage', async (data: Message) => {
-		
 			await appWindow.unminimize();
 			await appWindow.setAlwaysOnTop(true);
 			await appWindow.setAlwaysOnTop(false);
 			if (data.contactID == $userID) {
 				// if we are sender
 				let msg = messages.find((m) => data.receiver == m.contactID) as Message;
+				if(!msg){
+					msg = data;
+					msg.contactID = $currentContact.ID;
+					msg.contactName = $currentContact.name;
+					messages.unshift(data);
+					messages = messages;
+					return
+				}
 				msg.message = data.message;
 				msg.date = data.date;
 				msg.notSeen = { ...data.notSeen, ...{ [$userID as string]: 0 } };
 				messages = messages;
-				console.log(messages);
 				return;
 			}
 			messageSound.play()
 			messages = messages.filter((message) => message.contactID != data.contactID);
 			messages.unshift(data);
 			messages = messages;
-			console.log(data);
 		});
 	}
 	

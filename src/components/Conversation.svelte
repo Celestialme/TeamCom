@@ -17,7 +17,6 @@
 		$currentContact.ID = message.contactID;
 		$currentContact.conversationID = message.conversationID;
 		$currentContact.notSeen = message.notSeen
-		console.log(message.notSeen)
 	}
 	$:if(message.contactID==$currentContact.ID)message.notSeen = $currentContact.notSeen
 	function _(count: number) {

@@ -14,11 +14,12 @@
 		callSession,
 		screen,
 		micStream,
-		anyActive
+		anyActive,
+		currentContact
 	} from '@src/stores/store';
 	import axios from 'axios';
 	let prompt: { show: boolean; callDetails: any } = { show: false, callDetails: {} };
-	let caller: string;
+
 
 	peerConnection.subscribe((peer) => {
 		peer.connection.ontrack = (e) => {
@@ -27,10 +28,26 @@
 			audio.play();
 		};
 		peer.connection.onicecandidate = async (e) => {
-			if (!e.candidate) return;
-			$socket.emit('candidate', { sender: $userID, receiver: caller, candidate: e.candidate });
+			console.log("local-candidate")
+			if (e.candidate == null) return;
+			if (peer.caller) {
+				$socket.emit('candidate', { sender: $userID, receiver: peer.caller, candidate: e.candidate });
+			} else {
+				$socket.emit('candidate', {
+					sender: $userID,
+					receiver: $currentContact.ID,
+					candidate: e.candidate
+				});
+			}
+		};
+		peer.connection.onconnectionstatechange = peer.connection.onconnectionstatechange = (e) => {
+			console.log("connection",peer.connection.connectionState,"ice",peer.connection.iceConnectionState )
+			if (peer.connection.connectionState  === 'failed' || peer.connection.iceConnectionState === 'disconnected') {
+				peer.connection.restartIce();
+			}
 		};
 
+		
 		peer.connection.ondatachannel = (e) => {
 			e.channel.onopen = () => {
 				$callSession = true;
@@ -58,20 +75,24 @@
 	}
 	async function answer() {
 		let data = prompt.callDetails;
-		console.log($peerConnection);
-		caller = data.sender;
-		$micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+		$peerConnection.caller = data.sender;
+		
+		try {
+			$micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+		} catch (e) {
+			$micStream = new MediaStream();
+		}
 		$micStream
 			.getAudioTracks()
 			.forEach((track) => $peerConnection.connection.addTrack(track, $micStream));
+		console.log(data.offer)
 		await $peerConnection.connection.setRemoteDescription(data.offer);
 		let answer = await $peerConnection.connection.createAnswer();
 		await $peerConnection.connection.setLocalDescription(answer);
-		$socket.emit('answer', { sender: $userID, receiver: caller, answer });
+		$socket.emit('answer', { sender: $userID, receiver: $peerConnection.caller, answer });
 	}
 
 	$socket.on('usersOnline', (data) => {
-		console.log('online', data);
 		usersOnline.set(data);
 	});
 	userID.subscribe((value) => {
@@ -87,7 +108,6 @@
 	});
 
 	$socket.on('lastOnline', (data) => {
-		console.log('data', data);
 		let user = $userList.find((user) => user.id === data.id) as User;
 		user.lastOnline = data.time;
 		$userList = $userList;
@@ -97,13 +117,17 @@
 		prompt.callDetails = data;
 	});
 	$socket.on('answer', async (data) => {
-		console.log(data);
 		await $peerConnection?.connection.setRemoteDescription(data.answer);
 		$calling = false;
 	});
 	$socket.on('candidate', async (data) => {
-		if (!data.candidate) return;
-		await $peerConnection?.connection.addIceCandidate(new RTCIceCandidate(data.candidate));
+		console.log("socket-candidate")
+		if (data.candidate == null) return;
+		try {
+			await $peerConnection?.connection.addIceCandidate(new RTCIceCandidate(data.candidate));
+		} catch (e) {
+			
+		}
 	});
 	$socket.on('cancelCall', async (data) => {
 		$micStream && $micStream.getAudioTracks().forEach((track) => track.stop());
@@ -116,20 +140,18 @@
 	appWindow.onCloseRequested(() => {
 		$peerConnection.connection.close();
 	});
-	let focusTimeOut:NodeJS.Timeout
+	let focusTimeOut: NodeJS.Timeout;
 	appWindow.onFocusChanged(({ payload: focused }) => {
-		
 		if (focusTimeOut) {
-			clearTimeout(focusTimeOut)
+			clearTimeout(focusTimeOut);
 		}
 		focusTimeOut = setTimeout(() => {
-		if (focused==false && !$anyActive) {
+			if (focused == false && !$anyActive) {
 				appWindow.minimize();
 			}
-		},200);
+		}, 200);
 	});
 </script>
-
 
 <slot />
 {#if prompt.show}
@@ -141,5 +163,4 @@
 
 <style>
 	@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&display=swap');
-	
 </style>

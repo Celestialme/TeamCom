@@ -44,7 +44,7 @@
 		lastSeen = messages[messages.length - 1]?.notSeen[$currentContact.ID] || 0;
 		message_container.scrollTop = message_container.scrollHeight;
 	
-	
+		$currentContact.conversationID = messages[messages.length - 1]?.conversationID;
 		
 	});
 
@@ -71,11 +71,15 @@
 			$micStream.getAudioTracks().forEach((track) => track.stop());
 			$callSession = false;
 		};
+		try{
 
-		$micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+			$micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+		}catch(e){
+			$micStream = new MediaStream()
+		}
 		$micStream.getAudioTracks().forEach((track) => $peerConnection.connection.addTrack(track, $micStream));
 		$calling = true;
-		let offer = await $peerConnection.connection.createOffer();
+		let offer = await $peerConnection.connection.createOffer({offerToReceiveAudio:true});
 		await $peerConnection.connection.setLocalDescription(offer);
 		$socket.emit('call', {
 			sender: $userID,
