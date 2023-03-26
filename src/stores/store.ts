@@ -16,46 +16,46 @@ export let userList: Writable<Array<User>> = writable([]);
 export let calling: Writable<boolean> = writable(false);
 export let callSession: Writable<boolean> = writable(false);
 export let anyActive: Writable<boolean> = writable(false);
-let iceServers =   [
-    {
-      urls:[
-        "stun:stun1.l.google.com:19302",
-        "stun:stun2.l.google.com:19302",
-        "stun:stun3.l.google.com:19302",
-        "stun:stun4.l.google.com:19302",]
-    },
-    {
-      urls: "stun:relay.metered.ca:80",
-    },
-    {
-      urls: "turn:relay.metered.ca:80",
-      username: "b7ddadd7f2dc677005b15108",
-      credential: "xABzLc9XLWLvIgYT",
-    },
-    {
-      urls: "turn:relay.metered.ca:443",
-      username: "b7ddadd7f2dc677005b15108",
-      credential: "xABzLc9XLWLvIgYT",
-    },
-    {
-      urls: "turn:relay.metered.ca:443?transport=tcp",
-      username: "b7ddadd7f2dc677005b15108",
-      credential: "xABzLc9XLWLvIgYT",
-    },
-]
+let iceServers = [
+	{
+		urls: [
+			'stun:stun1.l.google.com:19302',
+			'stun:stun2.l.google.com:19302',
+			'stun:stun3.l.google.com:19302',
+			'stun:stun4.l.google.com:19302'
+		]
+	},
+	{
+		urls: 'stun:relay.metered.ca:80'
+	},
+	{
+		urls: 'turn:relay.metered.ca:80',
+		username: '12c0abed528c456a81f12c72',
+		credential: 'FPDW8KJv3eBBfgea'
+	},
+	{
+		urls: 'turn:relay.metered.ca:443',
+		username: '12c0abed528c456a81f12c72',
+		credential: 'FPDW8KJv3eBBfgea'
+	},
+	{
+		urls: 'turn:relay.metered.ca:443?transport=tcp',
+		username: '12c0abed528c456a81f12c72',
+		credential: 'FPDW8KJv3eBBfgea'
+	}
+];
 
 export let peerConnection = writable({
 	connection: new RTCPeerConnection({
 		iceServers
-
 	}),
-  caller:"",
+	caller: '',
 	reset: function () {
-    this.caller = "";
+		this.caller = '';
 		this.connection.close();
 		this.connection = new RTCPeerConnection({
-            iceServers
-        });
+			iceServers
+		});
 		peerConnection.set(get(peerConnection));
 	}
 });

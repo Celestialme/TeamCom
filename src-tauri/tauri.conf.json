@@ -7,7 +7,7 @@
     "distDir": "../build"
   },
   "package": {
-    "productName": "communications",
+    "productName": "TeamCom3",
     "version": "0.1.0"
   },
   "tauri": {

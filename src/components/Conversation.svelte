@@ -50,8 +50,9 @@
 	.conversation {
 		display: flex;
 		justify-content: space-between;
-		width: 100%;
+		width: 97%;
 		height: 100px;
+		border-radius: 12px;
 		gap: 15px;
 		padding: 15px;
 		background-color: #f5f5f5;

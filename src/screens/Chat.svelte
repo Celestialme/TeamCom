@@ -248,7 +248,7 @@
 		width: 100%;
 	}
 	.message_received {
-		background-color: #fdfbf1;
+		background-color: #feed99;
 		border: 1px solid #ebe8da;
 		padding: 15px 25px;
 		max-width: 80%;
@@ -260,7 +260,7 @@
 		padding: 15px 25px;
 		max-width: 80%;
 		margin-bottom: 20px;
-		background-color: #e4f3ff;
+		background-color: #9ed1fa;
 		border: 1px solid #e2eef4;
 		margin-left: auto;
 		border-radius: 100px 100px 0 100px;

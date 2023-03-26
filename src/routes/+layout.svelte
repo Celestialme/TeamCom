@@ -20,7 +20,7 @@
 	import axios from 'axios';
 	let prompt: { show: boolean; callDetails: any } = { show: false, callDetails: {} };
 
-
+	
 	peerConnection.subscribe((peer) => {
 		peer.connection.ontrack = (e) => {
 			let audio = new Audio();
@@ -85,8 +85,8 @@
 		$micStream
 			.getAudioTracks()
 			.forEach((track) => $peerConnection.connection.addTrack(track, $micStream));
-		console.log(data.offer)
-		await $peerConnection.connection.setRemoteDescription(data.offer);
+		
+		
 		let answer = await $peerConnection.connection.createAnswer();
 		await $peerConnection.connection.setLocalDescription(answer);
 		$socket.emit('answer', { sender: $userID, receiver: $peerConnection.caller, answer });
@@ -101,8 +101,10 @@
 			$socket.emit('setUserID', value);
 			globalThis?.localStorage?.removeItem('userID');
 			screen.set('Login');
+			appWindow.setAlwaysOnTop(true);
 			return;
 		}
+		appWindow.setAlwaysOnTop(false);
 		$socket.emit('setUserID', value);
 		globalThis?.localStorage?.setItem('userID', value);
 	});
@@ -115,6 +117,7 @@
 	$socket.on('call', async (data) => {
 		prompt.show = true;
 		prompt.callDetails = data;
+		await $peerConnection.connection.setRemoteDescription(data.offer);
 	});
 	$socket.on('answer', async (data) => {
 		await $peerConnection?.connection.setRemoteDescription(data.answer);
@@ -146,7 +149,7 @@
 			clearTimeout(focusTimeOut);
 		}
 		focusTimeOut = setTimeout(() => {
-			if (focused == false && !$anyActive) {
+			if (focused == false && !$anyActive && $userID) {
 				appWindow.minimize();
 			}
 		}, 200);
@@ -160,7 +163,17 @@
 {#if $callSession}
 	<CallSession />
 {/if}
-
+<div class="border"/>
 <style>
 	@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;500;600;700&display=swap');
+	.border {
+		width: calc(100vw - 1px);
+		height: calc(100vh - 1px);
+		position: fixed;
+		top:0;
+		left:0;
+		pointer-events: none;
+		box-shadow:inset 0px 0px 0px 1px black;
+		z-index: 9999;
+	}
 </style>
