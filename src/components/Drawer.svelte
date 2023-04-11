@@ -46,7 +46,7 @@
 		flex-direction: column;
 		align-items: flex-start;
 		height: calc(100% - 70px);
-		width: 200px;
+		width: 230px;
 		background-color: #dddddd;
 		z-index: 1;
 		transform: translate(-100%);

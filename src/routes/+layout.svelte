@@ -24,6 +24,8 @@
 
 	
 	peerConnection.subscribe((peer) => {
+		console.log(peer)
+		if(!peer) return
 		peer.connection.ontrack = (e) => {
 			let audio = new Audio();
 			audio.srcObject = e.streams[0];
@@ -98,7 +100,7 @@
 		usersOnline.set(data);
 	});
 	userID.subscribe((value) => {
-		$peerConnection.reset();
+		$peerConnection?.reset();
 		if (!value) {
 			$socket.emit('setUserID', value);
 			globalThis?.localStorage?.removeItem('userID');

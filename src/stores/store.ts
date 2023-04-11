@@ -2,6 +2,7 @@ import { get, writable, type Writable } from 'svelte/store';
 import { io } from 'socket.io-client';
 import { baseUrl } from '@src/config';
 import type { CurrentContact, User } from '@src/app';
+import axios from 'axios';
 export let currentContact: Writable<CurrentContact> = writable({
 	name: '',
 	ID: '',
@@ -16,48 +17,43 @@ export let userList: Writable<Array<User>> = writable([]);
 export let calling: Writable<boolean> = writable(false);
 export let callSession: Writable<boolean> = writable(false);
 export let anyActive: Writable<boolean> = writable(false);
-export let isConnected:Writable<boolean> = writable()
-let iceServers = [
-	{
-		urls: [
-			'stun:stun1.l.google.com:19302',
-			'stun:stun2.l.google.com:19302',
-			'stun:stun3.l.google.com:19302',
-			'stun:stun4.l.google.com:19302'
-		]
-	},
-	{
-		urls: 'stun:relay.metered.ca:80'
-	},
-	{
-		urls: 'turn:relay.metered.ca:80',
-		username: '12c0abed528c456a81f12c72',
-		credential: 'FPDW8KJv3eBBfgea'
-	},
-	{
-		urls: 'turn:relay.metered.ca:443',
-		username: '12c0abed528c456a81f12c72',
-		credential: 'FPDW8KJv3eBBfgea'
-	},
-	{
-		urls: 'turn:relay.metered.ca:443?transport=tcp',
-		username: '12c0abed528c456a81f12c72',
-		credential: 'FPDW8KJv3eBBfgea'
-	}
-];
-
-export let peerConnection = writable({
-	connection: new RTCPeerConnection({
-		iceServers
-	}),
-	caller: '',
-	reset: function () {
-		this.caller = '';
-		this.connection.close();
-		this.connection = new RTCPeerConnection({
+export let isConnected: Writable<boolean> = writable();
+async function getServers() {
+	let metered = (
+		await axios.get(
+			`https://teamcom3.metered.live/api/v1/turn/credentials?apiKey=54ee9b577530e9f5680b302ada51650ee1ff`
+		)
+	).data;
+	let iceServers = [
+		{
+			urls: [
+				'stun:stun1.l.google.com:19302',
+				'stun:stun2.l.google.com:19302',
+				'stun:stun3.l.google.com:19302',
+				'stun:stun4.l.google.com:19302'
+			]
+		},
+		...metered
+	];
+	peerConnection.set({
+		connection: new RTCPeerConnection({
 			iceServers
-		});
-		peerConnection.set(get(peerConnection));
-	}
-});
+		}),
+		caller: '',
+		reset: function () {
+			this.caller = '';
+			this.connection.close();
+			this.connection = new RTCPeerConnection({
+				iceServers
+			});
+			peerConnection.set(get(peerConnection));
+		}
+	});
+}
+getServers()
+export let peerConnection: Writable<{
+	connection: RTCPeerConnection;
+	caller: string;
+	reset: () => void;
+}> = writable();
 export let micStream: Writable<MediaStream> = writable();

@@ -231,6 +231,7 @@
 	}
 	header .name {
 		margin: 0;
+		padding-left:15px;
 		font-size: 19px;
 		font-weight: 500;
 		color: #000;
@@ -295,7 +296,7 @@
 		border: 2px solid #fff;
 		border-radius: 100%;
 		position: absolute;
-		right: -20px;
+		left:0;
 		top: 50%;
 		transform: translateY(-50%);
 	}

@@ -8,7 +8,7 @@
 </script>
 
 <div class="picture_wrapper" style="width:{size[0]}px;height:{size[0]}px">
-	<div class="img" style="background: {color.bg}">
+	<div class="img" style="background: {color.bg};width:{size[0]}px;height:{size[0]}px">
 		<p style="color: {color.text}">{name[0].toUpperCase()}</p>
 	</div>
 	<div class:online style="width:{size[1]}px;height:{size[1]}px" />
