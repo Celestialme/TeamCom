@@ -60,7 +60,7 @@
 		disabled=true
 	}
 	async function call() {
-		
+		if(!online) return
 		$peerConnection.reset()
 		let channel = $peerConnection.connection.createDataChannel('channel');
 
@@ -159,7 +159,7 @@
 			<h4 class="name">{$currentContact.name} <span class:online /></h4>
 			<p>Last seen {online ? 'just now' : generateTime(lastOnline, false)}</p>
 		</div>
-		<img src="/images/call.svg" alt="call" class="call" on:click={call} />
+		<img src="/images/call.svg" alt="call" class="call" class:online on:click={call} />
 		<ProfilePicture size={[50]} name={$currentContact.name} />
 	</header>
 	<div class="message_container" bind:this={message_container}>
@@ -288,14 +288,14 @@
 		outline: none;
 		box-shadow: none;
 	}
-	.online {
+	.name .online {
 		width: 14px;
 		height: 14px;
 		background-color: #3bdb1d;
 		border: 2px solid #fff;
 		border-radius: 100%;
 		position: absolute;
-		right: 0;
+		right: -20px;
 		top: 50%;
 		transform: translateY(-50%);
 	}
@@ -310,8 +310,12 @@
 		position: absolute;
 		left: 70px;
 		cursor: pointer;
+		opacity: 0.5;
 	}
-	.call:active {
+	.call.online{
+		opacity: 1;
+	}
+	.call.online:active {
 		transform: scale(0.9);
 	}
 </style>

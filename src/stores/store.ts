@@ -16,6 +16,7 @@ export let userList: Writable<Array<User>> = writable([]);
 export let calling: Writable<boolean> = writable(false);
 export let callSession: Writable<boolean> = writable(false);
 export let anyActive: Writable<boolean> = writable(false);
+export let isConnected:Writable<boolean> = writable()
 let iceServers = [
 	{
 		urls: [

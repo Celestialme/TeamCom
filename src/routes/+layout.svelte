@@ -15,9 +15,11 @@
 		screen,
 		micStream,
 		anyActive,
-		currentContact
+		currentContact,
+		isConnected
 	} from '@src/stores/store';
 	import axios from 'axios';
+	import ConnectionWarning from '@src/components/ConnectionWarning.svelte';
 	let prompt: { show: boolean; callDetails: any } = { show: false, callDetails: {} };
 
 	
@@ -108,7 +110,18 @@
 		$socket.emit('setUserID', value);
 		globalThis?.localStorage?.setItem('userID', value);
 	});
-
+	$socket.on("connect",()=>{
+		$isConnected = true
+		$socket.emit('setUserID', $userID);
+	})
+	$socket.on("connection_failed",()=>{
+		$isConnected = false
+	})
+	$socket.on("disconnect",()=>{
+		$isConnected = false
+		$usersOnline = []
+		console.log("disconnected")
+	})
 	$socket.on('lastOnline', (data) => {
 		let user = $userList.find((user) => user.id === data.id) as User;
 		user.lastOnline = data.time;
@@ -162,6 +175,9 @@
 {/if}
 {#if $callSession}
 	<CallSession />
+{/if}
+{#if $isConnected == false}
+	<ConnectionWarning />
 {/if}
 <div class="border"/>
 <style>
